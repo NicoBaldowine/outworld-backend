@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Outworld - Eventos para Familias</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .filter-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filter-group label {
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .filter-group select, .filter-group input {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .filter-group select:focus, .filter-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 1.2rem;
+        }
+        
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+        
+        .event-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .event-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+        
+        .event-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .event-image-placeholder {
+            width: 100%;
+            height: 200px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .event-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .event-age {
+            background: #667eea;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .event-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .event-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .event-detail {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: #555;
+        }
+        
+        .event-categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .category-tag {
+            background: #f0f0f0;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .event-price {
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .price-free {
+            color: #28a745;
+        }
+        
+        .price-paid {
+            color: #dc3545;
+        }
+        
+        .event-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .btn-more-info {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            text-align: center;
+            transition: background-color 0.3s ease;
+            flex: 1;
+        }
+        
+        .btn-more-info:hover {
+            background: #5a67d8;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .api-status {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .status-healthy {
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .status-error {
+            border-left: 4px solid #f44336;
+        }
+        
+        .no-events {
+            text-align: center;
+            padding: 60px;
+            color: white;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎪 Outworld</h1>
+            <p>Discover incredible family events in Denver</p>
+        </div>
+        
+        <div class="api-status" id="apiStatus">
+            <strong>API Status:</strong> <span id="statusText">Checking...</span>
+        </div>
+        
+        <div class="filters">
+            <div class="filter-group">
+                <label for="ageFilter">Age:</label>
+                <select id="ageFilter">
+                    <option value="">All ages</option>
+                    <option value="baby">Babies (0-18 months)</option>
+                    <option value="toddler">Toddlers (18m-3 years)</option>
+                    <option value="kid">Kids (4-8 years)</option>
+                    <option value="youth">Youth (9-12 years)</option>
+                </select>
+                
+                <label for="categoryFilter">Category:</label>
+                <select id="categoryFilter">
+                    <option value="">All categories</option>
+                    <option value="science">Science</option>
+                    <option value="art">Art</option>
+                    <option value="music">Music</option>
+                    <option value="reading">Reading</option>
+                    <option value="animals">Animals</option>
+                    <option value="outdoor">Outdoor Activities</option>
+                </select>
+                
+                <label for="priceFilter">Price:</label>
+                <select id="priceFilter">
+                    <option value="">All prices</option>
+                    <option value="free">Free</option>
+                    <option value="paid">Paid</option>
+                </select>
+                
+                <label for="limitFilter">Show:</label>
+                <select id="limitFilter">
+                    <option value="12">12 events</option>
+                    <option value="24">24 events</option>
+                    <option value="48">All events</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="loading" id="loading">
+            🔄 Loading amazing events...
+        </div>
+        
+        <div class="events-grid" id="eventsGrid" style="display: none;">
+        </div>
+        
+        <div class="no-events" id="noEvents" style="display: none;">
+            😔 No events found with the selected filters
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8000';
+        
+        // Elementos del DOM
+        const apiStatus = document.getElementById('apiStatus');
+        const statusText = document.getElementById('statusText');
+        const loading = document.getElementById('loading');
+        const eventsGrid = document.getElementById('eventsGrid');
+        const noEvents = document.getElementById('noEvents');
+        
+        // Filtros
+        const ageFilter = document.getElementById('ageFilter');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const priceFilter = document.getElementById('priceFilter');
+        const limitFilter = document.getElementById('limitFilter');
+        
+        // Check API status
+        async function checkAPIStatus() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`);
+                const data = await response.json();
+                
+                if (data.status === 'healthy') {
+                    apiStatus.className = 'api-status status-healthy';
+                    statusText.textContent = `✅ API working - ${data.database.events_count} events available`;
+                    return true;
+                } else {
+                    throw new Error('API not healthy');
+                }
+            } catch (error) {
+                apiStatus.className = 'api-status status-error';
+                statusText.textContent = `❌ Error connecting to API: ${error.message}`;
+                return false;
+            }
+        }
+        
+        // Cargar eventos
+        async function loadEvents() {
+            loading.style.display = 'block';
+            eventsGrid.style.display = 'none';
+            noEvents.style.display = 'none';
+            
+            try {
+                // Construir URL con filtros
+                const params = new URLSearchParams();
+                if (ageFilter.value) params.append('age_group', ageFilter.value);
+                if (categoryFilter.value) params.append('category', categoryFilter.value);
+                if (priceFilter.value) params.append('price_type', priceFilter.value);
+                if (limitFilter.value) params.append('limit', limitFilter.value);
+                
+                const response = await fetch(`${API_BASE_URL}/api/v1/events?${params}`);
+                const events = await response.json();
+                
+                loading.style.display = 'none';
+                
+                if (events.length === 0) {
+                    noEvents.style.display = 'block';
+                } else {
+                    displayEvents(events);
+                    eventsGrid.style.display = 'grid';
+                }
+                
+            } catch (error) {
+                loading.style.display = 'none';
+                console.error('Error loading events:', error);
+                statusText.textContent = `❌ Error loading events: ${error.message}`;
+            }
+        }
+        
+        // Display events
+        function displayEvents(events) {
+            eventsGrid.innerHTML = '';
+            
+            events.forEach(event => {
+                const eventCard = document.createElement('div');
+                eventCard.className = 'event-card';
+                
+                const startDate = new Date(event.date_start);
+                const endDate = new Date(event.date_end);
+                
+                // Create image element with fallback
+                const imageHtml = event.image_url ? 
+                    `<img src="${event.image_url}" alt="${event.title}" class="event-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                     <div class="event-image-placeholder" style="display: none;">🖼️</div>` :
+                    `<div class="event-image-placeholder">🖼️</div>`;
+                
+                eventCard.innerHTML = `
+                    ${imageHtml}
+                    
+                    <div class="event-header">
+                        <div class="event-title">${event.title}</div>
+                        <div class="event-age">${event.age_group}</div>
+                    </div>
+                    
+                    <div class="event-description">${event.description}</div>
+                    
+                    <div class="event-details">
+                        <div class="event-detail">
+                            📅 ${startDate.toLocaleDateString('en-US', { 
+                                weekday: 'long', 
+                                year: 'numeric', 
+                                month: 'long', 
+                                day: 'numeric' 
+                            })}
+                        </div>
+                        <div class="event-detail">
+                            🕐 ${startDate.toLocaleTimeString('en-US', { 
+                                hour: '2-digit', 
+                                minute: '2-digit' 
+                            })} - ${endDate.toLocaleTimeString('en-US', { 
+                                hour: '2-digit', 
+                                minute: '2-digit' 
+                            })}
+                        </div>
+                        <div class="event-detail">
+                            📍 ${event.location_name}
+                        </div>
+                        <div class="event-detail">
+                            🏠 ${event.address}, ${event.city}
+                        </div>
+                    </div>
+                    
+                    <div class="event-categories">
+                        ${event.categories.map(cat => `<span class="category-tag">${cat}</span>`).join('')}
+                    </div>
+                    
+                    <div class="event-price ${event.price_type === 'free' ? 'price-free' : 'price-paid'}">
+                        ${event.price_type === 'free' ? '🆓 Free' : '💰 Paid'}
+                    </div>
+
+                    <div class="event-actions">
+                        <a href="${event.source_url}" target="_blank" class="btn-more-info">More Info</a>
+                    </div>
+                `;
+                
+                eventsGrid.appendChild(eventCard);
+            });
+        }
+        
+        // Event listeners for filters
+        ageFilter.addEventListener('change', loadEvents);
+        categoryFilter.addEventListener('change', loadEvents);
+        priceFilter.addEventListener('change', loadEvents);
+        limitFilter.addEventListener('change', loadEvents);
+        
+        // Initialize
+        async function init() {
+            const apiHealthy = await checkAPIStatus();
+            if (apiHealthy) {
+                await loadEvents();
+            }
+        }
+        
+        // Start the application
+        init();
+        
+        // Update every 5 minutes
+        setInterval(init, 5 * 60 * 1000);
+    </script>
+</body>
+</html> 

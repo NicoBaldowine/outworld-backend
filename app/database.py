@@ -175,10 +175,20 @@ class DatabaseHandler:
             
             for event_data in events_data:
                 try:
-                    # Convert ISO strings back to datetime objects
-                    event_data['date_start'] = datetime.fromisoformat(event_data['date_start'].replace('Z', '+00:00'))
-                    event_data['date_end'] = datetime.fromisoformat(event_data['date_end'].replace('Z', '+00:00'))
-                    event_data['last_updated_at'] = datetime.fromisoformat(event_data['last_updated_at'].replace('Z', '+00:00'))
+                    import pytz
+                    # Convert ISO strings back to datetime objects and ensure Mountain Time
+                    # PostgreSQL stores in UTC, we need to convert back to Mountain Time for Colorado events
+                    mountain_tz = pytz.timezone('America/Denver')
+                    
+                    # Parse UTC datetime and convert to Mountain Time
+                    date_start_utc = datetime.fromisoformat(event_data['date_start'].replace('Z', '+00:00'))
+                    date_end_utc = datetime.fromisoformat(event_data['date_end'].replace('Z', '+00:00'))
+                    last_updated_utc = datetime.fromisoformat(event_data['last_updated_at'].replace('Z', '+00:00'))
+                    
+                    # Convert to Mountain Time (Colorado timezone)
+                    event_data['date_start'] = date_start_utc.astimezone(mountain_tz)
+                    event_data['date_end'] = date_end_utc.astimezone(mountain_tz)
+                    event_data['last_updated_at'] = last_updated_utc.astimezone(mountain_tz)
                     
                     # Convert age_group and price_type back to enums
                     from app.models import AgeGroup, PriceType
@@ -230,10 +240,20 @@ class DatabaseHandler:
             events = []
             for event_data in result.data:
                 try:
+                    import pytz
                     # Convert datetime strings and enums (similar to get_all_events)
-                    event_data['date_start'] = datetime.fromisoformat(event_data['date_start'].replace('Z', '+00:00'))
-                    event_data['date_end'] = datetime.fromisoformat(event_data['date_end'].replace('Z', '+00:00'))
-                    event_data['last_updated_at'] = datetime.fromisoformat(event_data['last_updated_at'].replace('Z', '+00:00'))
+                    # PostgreSQL stores in UTC, we need to convert back to Mountain Time for Colorado events
+                    mountain_tz = pytz.timezone('America/Denver')
+                    
+                    # Parse UTC datetime and convert to Mountain Time
+                    date_start_utc = datetime.fromisoformat(event_data['date_start'].replace('Z', '+00:00'))
+                    date_end_utc = datetime.fromisoformat(event_data['date_end'].replace('Z', '+00:00'))
+                    last_updated_utc = datetime.fromisoformat(event_data['last_updated_at'].replace('Z', '+00:00'))
+                    
+                    # Convert to Mountain Time (Colorado timezone)
+                    event_data['date_start'] = date_start_utc.astimezone(mountain_tz)
+                    event_data['date_end'] = date_end_utc.astimezone(mountain_tz)
+                    event_data['last_updated_at'] = last_updated_utc.astimezone(mountain_tz)
                     
                     # Convert age_group and price_type back to enums
                     from app.models import AgeGroup, PriceType

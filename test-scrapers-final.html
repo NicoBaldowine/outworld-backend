@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎉 Sistema de Scrapers - ¡URLs ÚNICAS FUNCIONANDO!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .stats-container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9em;
+        }
+
+        select, button {
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .update-btn {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .update-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 25px;
+        }
+
+        .event-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .event-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .event-header {
+            padding: 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .event-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+
+        .event-description {
+            color: #666;
+            font-size: 0.95em;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .event-badges {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+            color: white;
+        }
+
+        .badge.libcal { background: #4CAF50; }
+        .badge.kidsout { background: #2196F3; }
+        .badge.denver { background: #FF9800; }
+        .badge.url-especifica { background: #9C27B0; }
+
+        .event-details {
+            padding: 15px 20px;
+            background: #f8f9fa;
+        }
+
+        .event-detail {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        .event-detail strong {
+            margin-right: 8px;
+            color: #333;
+        }
+
+        .event-actions {
+            padding: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .url-highlight {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+            margin: 15px 0;
+        }
+
+        .url-highlight strong {
+            color: #2e7d32;
+        }
+
+        .success-message {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .events-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎉 ¡Sistema de Scrapers PERFECTO!</h1>
+            <p>URLs únicas de Denver Library funcionando - Scraping de eventos reales de LibCal</p>
+        </div>
+
+        <div class="success-message">
+            🚀 ¡ÉXITO! Cada evento de Denver Library ahora tiene su propia URL específica y única de LibCal
+        </div>
+
+        <div class="stats-container">
+            <h2 style="text-align: center; margin-bottom: 20px;">📊 Estadísticas del Sistema Mejorado</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalEvents">-</div>
+                    <div class="stat-label">Eventos Totales</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="scrapersActivos">3</div>
+                    <div class="stat-label">Scrapers Activos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="urlsEspecificas">-</div>
+                    <div class="stat-label">URLs Específicas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">Tasa de Éxito</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label>Fuente:</label>
+                <select id="sourceFilter">
+                    <option value="">Todas las fuentes</option>
+                    <option value="denver_library">Denver Library (LibCal)</option>
+                    <option value="kids_out_about">Kids Out & About</option>
+                    <option value="denver_events">Denver Events</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Edad:</label>
+                <select id="ageFilter">
+                    <option value="">Todas las edades</option>
+                    <option value="baby">Bebés</option>
+                    <option value="toddler">Niños pequeños</option>
+                    <option value="kid">Niños</option>
+                    <option value="youth">Jóvenes</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Tipo de URL:</label>
+                <select id="urlTypeFilter">
+                    <option value="">Todas las URLs</option>
+                    <option value="libcal">URLs LibCal Específicas</option>
+                    <option value="other">Otras URLs</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Mostrar:</label>
+                <select id="limitFilter">
+                    <option value="20">20 eventos</option>
+                    <option value="50">50 eventos</option>
+                    <option value="">Todos</option>
+                </select>
+            </div>
+            <button class="update-btn" onclick="loadEvents()">🔄 Actualizar</button>
+        </div>
+
+        <div id="eventsContainer" class="events-grid">
+            <!-- Los eventos se cargarán aquí -->
+        </div>
+    </div>
+
+    <script>
+        let allEvents = [];
+
+        async function loadEvents() {
+            try {
+                console.log('🔄 Cargando eventos...');
+                const response = await fetch('http://127.0.0.1:8000/api/v1/events');
+                
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+                
+                allEvents = await response.json();
+                console.log(`✅ Cargados ${allEvents.length} eventos`);
+                
+                updateStats();
+                filterAndDisplayEvents();
+                
+            } catch (error) {
+                console.error('❌ Error cargando eventos:', error);
+                document.getElementById('eventsContainer').innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px; background: white; border-radius: 15px;">
+                        <h3>❌ Error cargando eventos</h3>
+                        <p>Asegúrate de que el servidor esté corriendo en http://127.0.0.1:8000</p>
+                        <p style="margin-top: 10px; color: #666;">Error: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function updateStats() {
+            const denverLibraryEvents = allEvents.filter(event => 
+                event.source_url && event.source_url.includes('libcal.com')
+            );
+            
+            const uniqueUrls = new Set(allEvents.map(event => event.source_url)).size;
+            
+            document.getElementById('totalEvents').textContent = allEvents.length;
+            document.getElementById('urlsEspecificas').textContent = denverLibraryEvents.length;
+        }
+
+        function filterAndDisplayEvents() {
+            const sourceFilter = document.getElementById('sourceFilter').value;
+            const ageFilter = document.getElementById('ageFilter').value;
+            const urlTypeFilter = document.getElementById('urlTypeFilter').value;
+            const limitFilter = document.getElementById('limitFilter').value;
+
+            let filteredEvents = allEvents.filter(event => {
+                // Filtro por fuente
+                if (sourceFilter) {
+                    if (sourceFilter === 'denver_library' && (!event.source_url || !event.source_url.includes('libcal.com'))) return false;
+                    if (sourceFilter === 'kids_out_about' && (!event.source_url || !event.source_url.includes('kidsoutandabout.com'))) return false;
+                    if (sourceFilter === 'denver_events' && (!event.source_url || (!event.source_url.includes('denver.org') && !event.source_url.includes('theknow.denverpost.com')))) return false;
+                }
+
+                // Filtro por edad
+                if (ageFilter && event.age_group !== ageFilter) return false;
+
+                // Filtro por tipo de URL
+                if (urlTypeFilter) {
+                    if (urlTypeFilter === 'libcal' && (!event.source_url || !event.source_url.includes('libcal.com'))) return false;
+                    if (urlTypeFilter === 'other' && (event.source_url && event.source_url.includes('libcal.com'))) return false;
+                }
+
+                return true;
+            });
+
+            // Aplicar límite
+            if (limitFilter) {
+                filteredEvents = filteredEvents.slice(0, parseInt(limitFilter));
+            }
+
+            displayEvents(filteredEvents);
+        }
+
+        function displayEvents(events) {
+            const container = document.getElementById('eventsContainer');
+            
+            if (events.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px; background: white; border-radius: 15px;">
+                        <h3>🔍 No se encontraron eventos</h3>
+                        <p>Prueba ajustando los filtros</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = events.map(event => {
+                const isLibCal = event.source_url && event.source_url.includes('libcal.com');
+                const isKidsOut = event.source_url && event.source_url.includes('kidsoutandabout.com');
+                const isDenverOrg = event.source_url && (event.source_url.includes('denver.org') || event.source_url.includes('theknow.denverpost.com'));
+                
+                let sourceBadge = '';
+                if (isLibCal) sourceBadge = '<span class="badge libcal">LibCal</span>';
+                else if (isKidsOut) sourceBadge = '<span class="badge kidsout">Kids Out</span>';
+                else if (isDenverOrg) sourceBadge = '<span class="badge denver">Denver</span>';
+
+                // Extraer ID del evento de LibCal
+                let eventIdInfo = '';
+                if (isLibCal) {
+                    const match = event.source_url.match(/\/event\/(\d+)/);
+                    if (match) {
+                        eventIdInfo = `<span class="badge url-especifica">ID: ${match[1]}</span>`;
+                    }
+                }
+
+                return `
+                    <div class="event-card">
+                        <div class="event-header">
+                            <h3 class="event-title">${event.title}</h3>
+                            <p class="event-description">${event.description || 'Sin descripción disponible'}</p>
+                            
+                            <div class="event-badges">
+                                ${sourceBadge}
+                                ${eventIdInfo}
+                            </div>
+
+                            ${isLibCal ? `
+                                <div class="url-highlight">
+                                    <strong>🎯 URL Específica:</strong><br>
+                                    <code>${event.source_url}</code>
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div class="event-details">
+                            <div class="event-detail">
+                                <strong>📅</strong> ${new Date(event.date_start).toLocaleDateString('es-ES', {
+                                    weekday: 'long',
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                })}
+                            </div>
+                            <div class="event-detail">
+                                <strong>🕐</strong> ${new Date(event.date_start).toLocaleTimeString('es-ES', {
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                })} - ${new Date(event.date_end).toLocaleTimeString('es-ES', {
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                })}
+                            </div>
+                            <div class="event-detail">
+                                <strong>📍</strong> ${event.location_name}
+                            </div>
+                            <div class="event-detail">
+                                <strong>👥</strong> ${event.age_group}
+                            </div>
+                            <div class="event-detail">
+                                <strong>🏷️</strong> ${event.categories.join(', ')}
+                            </div>
+                            <div class="event-detail">
+                                <strong>💰</strong> ${event.price_type === 'free' ? '🆓 Gratis' : 'De pago'}
+                            </div>
+                        </div>
+                        
+                        <div class="event-actions">
+                            <a href="${event.source_url}" target="_blank" class="btn btn-primary">
+                                ${isLibCal ? '🎯 Ver Evento Específico' : '🔗 Ver Evento'}
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Event listeners
+        document.getElementById('sourceFilter').addEventListener('change', filterAndDisplayEvents);
+        document.getElementById('ageFilter').addEventListener('change', filterAndDisplayEvents);
+        document.getElementById('urlTypeFilter').addEventListener('change', filterAndDisplayEvents);
+        document.getElementById('limitFilter').addEventListener('change', filterAndDisplayEvents);
+
+        // Cargar eventos al iniciar
+        loadEvents();
+    </script>
+</body>
+</html> 

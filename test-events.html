@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Eventos con URLs Reales</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .api-status {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .status-healthy {
+            border-left: 5px solid #28a745;
+        }
+        
+        .status-error {
+            border-left: 5px solid #dc3545;
+        }
+        
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .filter-group label {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .filter-group select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        
+        .event-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .event-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .event-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .event-description {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+        
+        .event-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .event-detail {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: #555;
+        }
+        
+        .event-categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .category-tag {
+            background: #e9ecef;
+            color: #495057;
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+        
+        .event-price {
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .price-free {
+            color: #28a745;
+        }
+        
+        .price-paid {
+            color: #ffc107;
+        }
+        
+        .event-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-more-info {
+            background: #662e93;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        
+        .btn-more-info:hover {
+            background: #813aba;
+        }
+        
+        .source-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #007bff;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+        }
+        
+        .libcal-badge {
+            background: #28a745;
+        }
+        
+        .kidsout-badge {
+            background: #fd7e14;
+        }
+        
+        .event-card {
+            position: relative;
+        }
+        
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.2rem;
+            margin: 40px 0;
+        }
+        
+        .no-events {
+            text-align: center;
+            color: white;
+            font-size: 1.2rem;
+            margin: 40px 0;
+        }
+        
+        .stats {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #662e93;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎉 Eventos con URLs Reales</h1>
+            <p>Scrapers mejorados con scraping profundo - Kids Out & About + Denver Library</p>
+        </div>
+        
+        <div class="api-status" id="apiStatus">
+            <span id="statusText">Verificando API...</span>
+        </div>
+        
+        <div class="stats" id="stats" style="display: none;">
+            <div class="stat-item">
+                <div class="stat-number" id="totalEvents">0</div>
+                <div class="stat-label">Eventos Totales</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="libcalEvents">0</div>
+                <div class="stat-label">Denver Library (LibCal)</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="kidsoutEvents">0</div>
+                <div class="stat-label">Kids Out & About</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="realUrls">0</div>
+                <div class="stat-label">URLs Específicas</div>
+            </div>
+        </div>
+        
+        <div class="filters">
+            <div class="filter-group">
+                <label for="sourceFilter">Fuente:</label>
+                <select id="sourceFilter">
+                    <option value="">Todas las fuentes</option>
+                    <option value="libcal">Denver Library (LibCal)</option>
+                    <option value="kidsout">Kids Out & About</option>
+                    <option value="macaroni">Macaroni Kid</option>
+                    <option value="colorado">Colorado Parent</option>
+                    <option value="denver">Denver Events</option>
+                    <option value="recreation">Denver Recreation</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="ageFilter">Edad:</label>
+                <select id="ageFilter">
+                    <option value="">Todas las edades</option>
+                    <option value="baby">Bebés (0-18 meses)</option>
+                    <option value="toddler">Niños pequeños (18m-3 años)</option>
+                    <option value="kid">Niños (4-8 años)</option>
+                    <option value="youth">Jóvenes (9-12 años)</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="limitFilter">Mostrar:</label>
+                <select id="limitFilter">
+                    <option value="20">20 eventos</option>
+                    <option value="50">50 eventos</option>
+                    <option value="100">Todos los eventos</option>
+                </select>
+            </div>
+            
+            <button id="refreshBtn" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                🔄 Actualizar
+            </button>
+        </div>
+        
+        <div class="loading" id="loading">
+            🔄 Cargando eventos increíbles...
+        </div>
+        
+        <div class="events-grid" id="eventsGrid" style="display: none;">
+        </div>
+        
+        <div class="no-events" id="noEvents" style="display: none;">
+            😔 No se encontraron eventos con los filtros seleccionados
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8000';
+        
+        // Elementos del DOM
+        const apiStatus = document.getElementById('apiStatus');
+        const statusText = document.getElementById('statusText');
+        const loading = document.getElementById('loading');
+        const eventsGrid = document.getElementById('eventsGrid');
+        const noEvents = document.getElementById('noEvents');
+        const stats = document.getElementById('stats');
+        
+        // Filtros
+        const sourceFilter = document.getElementById('sourceFilter');
+        const ageFilter = document.getElementById('ageFilter');
+        const limitFilter = document.getElementById('limitFilter');
+        const refreshBtn = document.getElementById('refreshBtn');
+        
+        // Stats
+        const totalEventsSpan = document.getElementById('totalEvents');
+        const libcalEventsSpan = document.getElementById('libcalEvents');
+        const kidsoutEventsSpan = document.getElementById('kidsoutEvents');
+        const realUrlsSpan = document.getElementById('realUrls');
+        
+        // Check API status
+        async function checkAPIStatus() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`);
+                const data = await response.json();
+                
+                if (data.status === 'healthy') {
+                    apiStatus.className = 'api-status status-healthy';
+                    statusText.textContent = `✅ API funcionando - ${data.database.events_count} eventos disponibles`;
+                    return true;
+                } else {
+                    throw new Error('API no está saludable');
+                }
+            } catch (error) {
+                apiStatus.className = 'api-status status-error';
+                statusText.textContent = `❌ Error conectando con API: ${error.message}`;
+                return false;
+            }
+        }
+        
+        // Get source badge
+        function getSourceBadge(sourceUrl) {
+            if (sourceUrl.includes('libcal.com')) {
+                return { text: 'LibCal', class: 'libcal-badge' };
+            } else if (sourceUrl.includes('kidsoutandabout.com') || sourceUrl.includes('denverfirefightersmuseum.org') || sourceUrl.includes('frederickco.gov')) {
+                return { text: 'Kids Out', class: 'kidsout-badge' };
+            } else if (sourceUrl.includes('macaronikid.com')) {
+                return { text: 'Macaroni', class: 'source-badge' };
+            } else if (sourceUrl.includes('coloradoparent.com')) {
+                return { text: 'CO Parent', class: 'source-badge' };
+            } else if (sourceUrl.includes('denver.org')) {
+                return { text: 'Denver', class: 'source-badge' };
+            } else if (sourceUrl.includes('denvergov.org')) {
+                return { text: 'Recreation', class: 'source-badge' };
+            } else {
+                return { text: 'Other', class: 'source-badge' };
+            }
+        }
+        
+        // Load events
+        async function loadEvents() {
+            loading.style.display = 'block';
+            eventsGrid.style.display = 'none';
+            noEvents.style.display = 'none';
+            stats.style.display = 'none';
+            
+            try {
+                // Build URL with filters
+                const params = new URLSearchParams();
+                if (ageFilter.value) params.append('age_group', ageFilter.value);
+                if (limitFilter.value) params.append('limit', limitFilter.value);
+                
+                const url = `${API_BASE_URL}/api/v1/events?${params.toString()}`;
+                const response = await fetch(url);
+                const events = await response.json();
+                
+                // Filter by source if selected
+                let filteredEvents = events;
+                if (sourceFilter.value) {
+                    filteredEvents = events.filter(event => {
+                        const sourceUrl = event.source_url.toLowerCase();
+                        switch(sourceFilter.value) {
+                            case 'libcal': return sourceUrl.includes('libcal.com');
+                            case 'kidsout': return sourceUrl.includes('kidsoutandabout.com') || sourceUrl.includes('denverfirefightersmuseum.org') || sourceUrl.includes('frederickco.gov');
+                            case 'macaroni': return sourceUrl.includes('macaronikid.com');
+                            case 'colorado': return sourceUrl.includes('coloradoparent.com');
+                            case 'denver': return sourceUrl.includes('denver.org');
+                            case 'recreation': return sourceUrl.includes('denvergov.org');
+                            default: return true;
+                        }
+                    });
+                }
+                
+                // Calculate stats
+                const libcalCount = events.filter(e => e.source_url.includes('libcal.com')).length;
+                const kidsoutCount = events.filter(e => e.source_url.includes('kidsoutandabout.com') || e.source_url.includes('denverfirefightersmuseum.org') || e.source_url.includes('frederickco.gov')).length;
+                const realUrlsCount = events.filter(e => e.source_url.includes('event/') || e.source_url.includes('content/') || e.source_url.includes('denverfirefightersmuseum.org') || e.source_url.includes('frederickco.gov')).length;
+                
+                totalEventsSpan.textContent = events.length;
+                libcalEventsSpan.textContent = libcalCount;
+                kidsoutEventsSpan.textContent = kidsoutCount;
+                realUrlsSpan.textContent = realUrlsCount;
+                
+                stats.style.display = 'grid';
+                
+                if (filteredEvents.length === 0) {
+                    noEvents.style.display = 'block';
+                    loading.style.display = 'none';
+                    return;
+                }
+                
+                // Display events
+                eventsGrid.innerHTML = '';
+                filteredEvents.forEach(event => {
+                    const startDate = new Date(event.date_start);
+                    const endDate = new Date(event.date_end);
+                    const badge = getSourceBadge(event.source_url);
+                    
+                    const eventCard = document.createElement('div');
+                    eventCard.className = 'event-card';
+                    eventCard.innerHTML = `
+                        <div class="source-badge ${badge.class}">${badge.text}</div>
+                        
+                        <div class="event-title">${event.title}</div>
+                        <div class="event-description">${event.description}</div>
+                        
+                        <div class="event-details">
+                            <div class="event-detail">
+                                📅 ${startDate.toLocaleDateString('es-ES', { 
+                                    weekday: 'long', 
+                                    year: 'numeric', 
+                                    month: 'long', 
+                                    day: 'numeric' 
+                                })}
+                            </div>
+                            <div class="event-detail">
+                                🕐 ${startDate.toLocaleTimeString('es-ES', { 
+                                    hour: '2-digit', 
+                                    minute: '2-digit' 
+                                })} - ${endDate.toLocaleTimeString('es-ES', { 
+                                    hour: '2-digit', 
+                                    minute: '2-digit' 
+                                })}
+                            </div>
+                            <div class="event-detail">
+                                📍 ${event.location_name}
+                            </div>
+                            <div class="event-detail">
+                                🏠 ${event.address}, ${event.city}
+                            </div>
+                            <div class="event-detail">
+                                👥 ${event.age_group === 'baby' ? 'Bebés' : event.age_group === 'toddler' ? 'Niños pequeños' : event.age_group === 'kid' ? 'Niños' : 'Jóvenes'}
+                            </div>
+                        </div>
+                        
+                        <div class="event-categories">
+                            ${event.categories.map(cat => `<span class="category-tag">${cat}</span>`).join('')}
+                        </div>
+                        
+                        <div class="event-price ${event.price_type === 'free' ? 'price-free' : 'price-paid'}">
+                            ${event.price_type === 'free' ? '🆓 Gratis' : '💰 Pago'}
+                        </div>
+
+                        <div class="event-actions">
+                            <a href="${event.source_url}" target="_blank" class="btn-more-info">
+                                ${event.source_url.includes('event/') || event.source_url.includes('content/') ? '🔗 Página Específica' : '📄 Más Información'}
+                            </a>
+                        </div>
+                    `;
+                    
+                    eventsGrid.appendChild(eventCard);
+                });
+                
+                eventsGrid.style.display = 'grid';
+                loading.style.display = 'none';
+                
+            } catch (error) {
+                console.error('Error loading events:', error);
+                loading.style.display = 'none';
+                noEvents.style.display = 'block';
+            }
+        }
+        
+        // Event listeners
+        sourceFilter.addEventListener('change', loadEvents);
+        ageFilter.addEventListener('change', loadEvents);
+        limitFilter.addEventListener('change', loadEvents);
+        refreshBtn.addEventListener('click', loadEvents);
+        
+        // Initialize
+        async function init() {
+            const apiHealthy = await checkAPIStatus();
+            if (apiHealthy) {
+                await loadEvents();
+            }
+        }
+        
+        // Start the application
+        init();
+    </script>
+</body>
+</html> 

@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 OutWorld Scraper Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .status-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .stat:last-child {
+            border-bottom: none;
+        }
+        
+        .stat .label {
+            font-weight: 600;
+            color: #666;
+        }
+        
+        .stat .value {
+            color: #333;
+            font-weight: bold;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-healthy {
+            background-color: #4CAF50;
+        }
+        
+        .status-error {
+            background-color: #f44336;
+        }
+        
+        .controls {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            margin: 5px 0;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+        }
+        
+        .events-section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        
+        .event-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .event-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .scraper-source {
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .price-tag {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .price-free {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+        }
+        
+        .price-paid {
+            background: linear-gradient(45deg, #ff9800, #f57c00);
+            color: white;
+            box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+        }
+        
+        .event-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .event-date {
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .event-location {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .event-description {
+            color: #777;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+        
+        .event-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .tag {
+            background: #f0f8ff;
+            color: #667eea;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            border: 1px solid #667eea;
+        }
+        
+        .event-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #c62828;
+        }
+        
+        .success {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #2e7d32;
+        }
+        
+        .logs {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 OutWorld Scraper Dashboard</h1>
+            <p>Family Events Dashboard for Colorado</p>
+        </div>
+
+        <!-- Status Cards -->
+        <div class="status-cards">
+            <div class="card">
+                <h3>🏥 System Status</h3>
+                <div id="system-status">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        Loading status...
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📊 Event Statistics</h3>
+                <div id="events-stats">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        Loading statistics...
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🗓️ Next Scraping</h3>
+                <div id="scheduler-status">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        Loading scheduler...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button class="btn" onclick="refreshData()">🔄 Refresh Data</button>
+            <button class="btn" onclick="runManualScraping()">🕷️ Manual Scraping</button>
+            <button class="btn" onclick="viewHealth()">🏥 Health Check</button>
+        </div>
+
+        <!-- Messages -->
+        <div id="messages"></div>
+
+        <!-- Events Section -->
+        <div class="events-section">
+            <h2>📅 Available Events</h2>
+            <div id="events-container">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Loading events...
+                </div>
+            </div>
+        </div>
+
+        <!-- Logs -->
+        <div class="card">
+            <h3>📋 System Logs</h3>
+            <div id="logs" class="logs">
+                Connecting to system...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+        
+        function addLog(message) {
+            const logs = document.getElementById('logs');
+            const timestamp = new Date().toLocaleTimeString();
+            logs.innerHTML += `[${timestamp}] ${message}\n`;
+            logs.scrollTop = logs.scrollHeight;
+        }
+        
+        function showMessage(message, type = 'success') {
+            const messages = document.getElementById('messages');
+            const div = document.createElement('div');
+            div.className = type;
+            div.textContent = message;
+            messages.appendChild(div);
+            
+            setTimeout(() => {
+                div.remove();
+            }, 5000);
+        }
+
+        async function fetchWithErrorHandling(url, options = {}) {
+            try {
+                addLog(`Fetching: ${url}`);
+                const response = await fetch(url, options);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return await response.json();
+            } catch (error) {
+                addLog(`ERROR: ${error.message}`);
+                throw error;
+            }
+        }
+
+        async function loadSystemStatus() {
+            try {
+                const health = await fetchWithErrorHandling(`${API_BASE}/health`);
+                
+                const statusHtml = `
+                    <div class="stat">
+                        <span class="label">
+                            <span class="status-indicator ${health.status === 'healthy' ? 'status-healthy' : 'status-error'}"></span>
+                            Status
+                        </span>
+                        <span class="value">${health.status}</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">Database</span>
+                        <span class="value">${health.database.status}</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">Scheduler</span>
+                        <span class="value">${health.scheduler.status}</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">Cache</span>
+                        <span class="value">${health.cache.status}</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">Scrapers</span>
+                        <span class="value">${health.scrapers.total}</span>
+                    </div>
+                `;
+                
+                document.getElementById('system-status').innerHTML = statusHtml;
+                addLog('✅ System status loaded');
+            } catch (error) {
+                document.getElementById('system-status').innerHTML = `
+                    <div class="error">Error loading status: ${error.message}</div>
+                `;
+            }
+        }
+
+        async function loadEventsStats() {
+            try {
+                // Get events directly and calculate stats
+                const events = await fetchWithErrorHandling(`${API_BASE}/api/v1/events?limit=1000`);
+                
+                // Calculate basic stats
+                const totalEvents = events.length;
+                const withImages = events.filter(e => e.image_url).length;
+                const locations = new Set(events.map(e => `${e.location_name}|${e.address}`)).size;
+                const sources = new Set(events.map(e => {
+                    try {
+                        return new URL(e.source_url).hostname;
+                    } catch {
+                        return 'unknown';
+                    }
+                })).size;
+                
+                const statsHtml = `
+                    <div class="stat">
+                        <span class="label">Total Events</span>
+                        <span class="value">${totalEvents}</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">With Images</span>
+                        <span class="value">${withImages}</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">Locations</span>
+                        <span class="value">${locations}</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">Sources</span>
+                        <span class="value">${sources}</span>
+                    </div>
+                `;
+                
+                document.getElementById('events-stats').innerHTML = statsHtml;
+                addLog('📊 Statistics calculated');
+            } catch (error) {
+                document.getElementById('events-stats').innerHTML = `
+                    <div class="error">Error loading statistics: ${error.message}</div>
+                `;
+            }
+        }
+
+        async function loadSchedulerStatus() {
+            try {
+                const scheduler = await fetchWithErrorHandling(`${API_BASE}/api/v1/scheduler/status`);
+                const nextRun = await fetchWithErrorHandling(`${API_BASE}/api/v1/scheduler/next-run`);
+                
+                const nextScraping = nextRun.daily_scraping ? 
+                    new Date(nextRun.daily_scraping).toLocaleString() : 
+                    'Not scheduled';
+                
+                const schedulerHtml = `
+                    <div class="stat">
+                        <span class="label">Status</span>
+                        <span class="value">${scheduler.running ? '🟢 Running' : '🔴 Stopped'}</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">Next Scraping</span>
+                        <span class="value">${nextScraping}</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">Total Runs</span>
+                        <span class="value">${scheduler.statistics.total_runs}</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">Successful</span>
+                        <span class="value">${scheduler.statistics.successful_runs}</span>
+                    </div>
+                `;
+                
+                document.getElementById('scheduler-status').innerHTML = schedulerHtml;
+                addLog('🗓️ Scheduler status loaded');
+            } catch (error) {
+                document.getElementById('scheduler-status').innerHTML = `
+                    <div class="error">Error loading scheduler: ${error.message}</div>
+                `;
+            }
+        }
+
+        async function loadEvents() {
+            try {
+                const events = await fetchWithErrorHandling(`${API_BASE}/api/v1/events?limit=50`);
+                
+                if (events.length === 0) {
+                    document.getElementById('events-container').innerHTML = `
+                        <div class="loading">
+                            <p>No events available</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                const eventsHtml = events.map(event => {
+                    // Smart date display logic
+                    let dateDisplay = '';
+                    if (event.title.includes('Now Playing') || event.title.includes('Coming Soon')) {
+                        // For ALL movies, show release date as user requested
+                        const releaseDate = new Date(event.date_start).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        });
+                        if (event.title.includes('Now Playing')) {
+                            dateDisplay = `🎬 Released: ${releaseDate}`;
+                        } else {
+                            dateDisplay = `🗓️ Release Date: ${releaseDate}`;
+                        }
+                    } else {
+                        // For other events, show full date/time
+                        const date = new Date(event.date_start).toLocaleDateString('en-US', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                        dateDisplay = `📅 ${date}`;
+                    }
+                    
+                    // Detect scraper source based on event characteristics
+                    function getScraperSource(event) {
+                        if (event.title.includes('(PG)') || event.title.includes('(PG-13)') || 
+                            event.title.includes('Now Playing') || event.title.includes('Coming Soon') ||
+                            event.location_name.includes('Cinemark')) {
+                            return { name: 'Movies', emoji: '🎬', color: '#e91e63' };
+                        } else if (event.title.includes('Trail') || event.title.includes('Hiking') ||
+                                   event.categories.includes('hiking') || event.categories.includes('outdoor')) {
+                            return { name: 'Hiking', emoji: '🥾', color: '#4caf50' };
+                        } else if (event.location_name.includes('Denver Public Library') || 
+                                   event.location_name.includes('Library')) {
+                            return { name: 'Library', emoji: '📚', color: '#2196f3' };
+                        } else if (event.location_name.includes('Children\'s Museum') ||
+                                   event.title.includes('Children\'s Museum') ||
+                                   event.title.includes('Birthday Bash') ||
+                                   event.title.includes('Joy Park') ||
+                                   event.title.includes('Catawampus')) {
+                            return { name: 'Museum', emoji: '🏛️', color: '#9c27b0' };
+                        } else if (event.location_name.includes('Denver Zoo') ||
+                                   event.title.includes('Denver Zoo') ||
+                                   event.title.includes('Summer at DZCA') ||
+                                   event.title.includes('Teddy Bear Clinic') ||
+                                   event.title.includes('Flock Party') ||
+                                   event.title.includes('Sea Lion') ||
+                                   event.categories.some(cat => ['zoo', 'animals'].includes(cat))) {
+                            return { name: 'Zoo', emoji: '🦁', color: '#795548' };
+                        } else if (event.location_name.includes('Botanic Gardens') ||
+                                   event.categories.some(cat => ['nature'].includes(cat))) {
+                            return { name: 'Kids Out', emoji: '👨‍👩‍👧‍👦', color: '#ff9800' };
+                        } else {
+                            return { name: 'General', emoji: '📝', color: '#757575' };
+                        }
+                    }
+                    
+                    const scraperSource = getScraperSource(event);
+                    
+                    // Enhanced price display
+                    const priceDisplay = event.price_type === 'free' ? 
+                        '<span class="price-tag price-free">💰 FREE</span>' : 
+                        '<span class="price-tag price-paid">💳 PAID</span>';
+                    
+                    const tags = [
+                        event.age_group,
+                        ...event.categories.slice(0, 2)
+                    ];
+                    
+                    return `
+                        <div class="event-card">
+                            <div class="event-header">
+                                <div class="scraper-source" style="background-color: ${scraperSource.color}">
+                                    ${scraperSource.emoji} ${scraperSource.name}
+                                </div>
+                                ${priceDisplay}
+                            </div>
+                            <div class="event-title">${event.title}</div>
+                            <div class="event-date">${dateDisplay}</div>
+                            <div class="event-location">📍 ${event.location_name}, ${event.city}</div>
+                            <div class="event-description">${event.description.substring(0, 150)}${event.description.length > 150 ? '...' : ''}</div>
+                            <div class="event-tags">
+                                ${tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                            </div>
+                            <div class="event-actions">
+                                <a href="${event.source_url}" target="_blank" class="btn btn-small">
+                                    🌐 Official Event Page
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                document.getElementById('events-container').innerHTML = `
+                    <div class="events-grid">${eventsHtml}</div>
+                `;
+                
+                addLog(`📅 ${events.length} events loaded`);
+            } catch (error) {
+                document.getElementById('events-container').innerHTML = `
+                    <div class="error">Error loading events: ${error.message}</div>
+                `;
+            }
+        }
+
+        async function runManualScraping() {
+            try {
+                showMessage('Starting manual scraping...', 'success');
+                addLog('🕷️ Starting manual scraping...');
+                
+                const result = await fetchWithErrorHandling(`${API_BASE}/api/v1/scheduler/run-manual`, {
+                    method: 'POST'
+                });
+                
+                if (result.success) {
+                    showMessage('Scraping completed successfully!', 'success');
+                    addLog(`✅ Scraping successful: ${result.message}`);
+                    
+                    // Refresh data after scraping
+                    setTimeout(() => {
+                        refreshData();
+                    }, 2000);
+                } else {
+                    showMessage(`Scraping error: ${result.message}`, 'error');
+                    addLog(`❌ Scraping failed: ${result.message}`);
+                }
+            } catch (error) {
+                showMessage(`Error executing scraping: ${error.message}`, 'error');
+            }
+        }
+
+        async function viewHealth() {
+            try {
+                const health = await fetchWithErrorHandling(`${API_BASE}/health`);
+                
+                const healthInfo = `
+                    Status: ${health.status}
+                    Events in DB: ${health.database.events_count}
+                    Scheduler: ${health.scheduler.status}
+                    Cache: ${health.cache.status}
+                    Available scrapers: ${health.scrapers.available.join(', ')}
+                `;
+                
+                alert(healthInfo);
+                addLog('🏥 Health check performed');
+            } catch (error) {
+                alert(`Health check error: ${error.message}`);
+            }
+        }
+
+        async function refreshData() {
+            addLog('🔄 Refreshing all data...');
+            await Promise.all([
+                loadSystemStatus(),
+                loadEventsStats(),
+                loadSchedulerStatus(),
+                loadEvents()
+            ]);
+            showMessage('Data updated successfully', 'success');
+        }
+
+        // Load initial data
+        document.addEventListener('DOMContentLoaded', function() {
+            addLog('🚀 Dashboard started');
+            refreshData();
+            
+            // Auto-refresh every 5 minutes
+            setInterval(refreshData, 5 * 60 * 1000);
+        });
+    </script>
+</body>
+</html> 

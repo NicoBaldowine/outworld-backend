@@ -12,10 +12,14 @@ from app.models import Event
 # Import all scrapers - using improved versions
 # from app.scrapers.macaronikid_scraper import MacaroniKidDenverScraper
 # from app.scrapers.colorado_parent_scraper import ColoradoParentScraper
-from app.scrapers.denver_events_scraper import DenverEventsScraper
+# from app.scrapers.denver_events_scraper import DenverEventsScraper  # REMOVED
 # from app.scrapers.denver_recreation_scraper import DenverRecreationScraper
 from app.scrapers.denver_library_scraper import DenverLibraryScraper
 from app.scrapers.kids_out_about_scraper import KidsOutAboutScraper
+from app.scrapers.cinemark_movies_scraper import CinemarkMoviesScraper
+from app.scrapers.alltrails_scraper import AllTrailsScraper
+from app.scrapers.children_museum_scraper import ChildrenMuseumScraper
+from app.scrapers.denver_zoo_scraper import DenverZooScraper
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -95,14 +99,17 @@ class EventScheduler:
         self.db = DatabaseHandler()
         self.denver_timezone = pytz.timezone('America/Denver')
         
-        # ONLY 3 scrapers that user wants - using improved versions
+        # 6 focused scrapers for comprehensive family events
         self.scrapers = {
             'denver_library': DenverLibraryScraper(),
             'kids_out_about': KidsOutAboutScraper(),
-            'denver_events': DenverEventsScraper()
+            'cinemark_movies': CinemarkMoviesScraper(),
+            'alltrails_hikes': AllTrailsScraper(),
+            'children_museum': ChildrenMuseumScraper(),
+            'denver_zoo': DenverZooScraper()
         }
         
-        logger.info("🗓️  Event scheduler initialized with 3 specific scrapers: denver_library, kids_out_about, denver_events")
+        logger.info("🗓️  Event scheduler initialized with 6 scrapers: denver_library, kids_out_about, cinemark_movies, alltrails_hikes, children_museum, denver_zoo")
     
     def ensure_image_url(self, event: Event) -> bool:
         """Ensure event has an image URL - required for all events"""
